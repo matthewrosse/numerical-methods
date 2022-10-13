@@ -1,6 +1,7 @@
 #include "../include/matrix.h"
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 
 struct Matrix *matrix_init(const size_t n_rows, const size_t n_cols) {
   struct Matrix *matrix = malloc(sizeof(struct Matrix));
@@ -9,7 +10,7 @@ struct Matrix *matrix_init(const size_t n_rows, const size_t n_cols) {
 
   matrix->data = malloc(matrix->rows * sizeof(double *));
 
-  for (size_t i = 0; i < matrix->cols; i++) {
+  for (size_t i = 0; i < matrix->rows; i++) {
     matrix->data[i] = malloc(matrix->cols * sizeof(double));
   }
 
@@ -19,7 +20,7 @@ struct Matrix *matrix_init(const size_t n_rows, const size_t n_cols) {
 }
 
 void matrix_free(struct Matrix *matrix) {
-  for (size_t i = 0; i < matrix->cols; i++) {
+  for (size_t i = 0; i < matrix->rows; i++) {
     free(matrix->data[i]);
   }
   free(matrix->data);
@@ -44,8 +45,7 @@ void matrix_print(struct Matrix *matrix) {
   }
 }
 
-void matrix_fill(struct Matrix *matrix,
-                 double data[matrix->rows][matrix->cols]) {
+void matrix_fill(struct Matrix *matrix, double **data) {
   for (size_t i = 0; i < matrix->rows; i++) {
     for (size_t j = 0; j < matrix->cols; j++) {
       matrix->data[i][j] = data[i][j];
@@ -174,4 +174,71 @@ int matrix_inverse_3x3(struct Matrix *matrix, struct Matrix *result) {
   matrix_free(transposed_matrix);
 
   return 0;
+}
+
+int *matrix_get_size_from_file(char *path, char *delimiter) {
+  FILE *file = fopen(path, "r");
+
+  if (file == NULL) {
+    return NULL;
+  }
+
+  char buf[1000];
+
+  int rows = 0;
+
+  char *line = fgets(buf, 1000, file);
+  rows++;
+
+  char *tokenized_line = strtok(line, delimiter);
+
+  unsigned int cols = 0;
+
+  while (tokenized_line != NULL) {
+    cols++;
+    tokenized_line = strtok(NULL, delimiter);
+  }
+
+  while (fgets(line, 1000, file) != NULL) {
+    rows++;
+  }
+
+  fclose(file);
+
+  int *result = (int *)malloc(sizeof(int) * 2);
+  result[0] = rows;
+  result[1] = cols;
+
+  return result;
+}
+
+struct Matrix *matrix_read_from_file(char *path, char *delimiter) {
+  FILE *file = fopen(path, "r");
+
+  if (file == NULL) {
+    fclose(file);
+    return NULL;
+  }
+
+  int *matrix_size = matrix_get_size_from_file(path, delimiter);
+
+  if (matrix_size == NULL) {
+    fclose(file);
+    return NULL;
+  }
+
+  struct Matrix *matrix = matrix_init(matrix_size[0], matrix_size[1]);
+
+  for (size_t i = 0; i < matrix->rows; i++) {
+    for (size_t j = 0; j < matrix->cols; j++) {
+      double buffer;
+      fscanf(file, "%lf", &buffer);
+      matrix->data[i][j] = buffer;
+    }
+  }
+
+  free(matrix_size);
+  fclose(file);
+
+  return matrix;
 }

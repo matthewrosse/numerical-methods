@@ -16,8 +16,7 @@ void matrix_zero(struct Matrix *matrix);
 
 void matrix_print(struct Matrix *matrix);
 
-void matrix_fill(struct Matrix *matrix,
-                 double data[matrix->rows][matrix->cols]);
+void matrix_fill(struct Matrix *matrix, double **data);
 
 struct Matrix *matrix_multiply(struct Matrix *first_matrix,
                                struct Matrix *second_matrix);
@@ -31,5 +30,7 @@ struct Matrix *matrix_create_minor(struct Matrix *matrix, size_t row,
                                    size_t col);
 
 struct Matrix *matrix_transpose(struct Matrix *matrix);
+
+struct Matrix *matrix_read_from_file(char *path, char *delimiter);
 
 #endif
