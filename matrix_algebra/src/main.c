@@ -64,10 +64,42 @@ int main(int argc, char **argv) {
 
   printf("\n");
 
+  struct Matrix *minor_test_main =
+      matrix_read_from_file("../test_files/matrix_laplace_5x5.txt", " ");
+
+  struct Matrix *minor_test = matrix_create_minor(minor_test_main, 1, 0);
+  struct Matrix *minor_test2 = matrix_create_minor(minor_test_main, 1, 1);
+
+  printf("MINOR1: \n");
+
+  matrix_print(minor_test);
+
+  printf("MINOR2: \n");
+
+  matrix_print(minor_test2);
+
+  printf("\n");
+  printf("\n");
+
+  double laplace_determinant = matrix_laplace_determinant(minor_test_main);
+
+  printf("\n");
+  printf("Laplace determinant: %lf\n", laplace_determinant);
+
+  struct Matrix *identity_matrix = matrix_create_identity(10);
+  printf("\nIdentity matrix: \n");
+  matrix_print(identity_matrix);
+  printf("\n");
+
   matrix_free(first_matrix);
   matrix_free(second_matrix);
   matrix_free(sarrus_test_matrix);
   matrix_free(multiplication_result);
   matrix_free(inverse_result_matrix);
+
+  matrix_free(minor_test_main);
+  matrix_free(minor_test);
+  matrix_free(minor_test2);
+  matrix_free(identity_matrix);
   return 0;
 }
