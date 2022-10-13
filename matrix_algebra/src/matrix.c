@@ -1,7 +1,9 @@
 #include "../include/matrix.h"
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 struct Matrix *matrix_init(const size_t n_rows, const size_t n_cols) {
   struct Matrix *matrix = malloc(sizeof(struct Matrix));
@@ -70,6 +72,42 @@ struct Matrix *matrix_multiply(struct Matrix *first_matrix,
         sum += first_matrix->data[i][k] * second_matrix->data[k][j];
       }
       result->data[i][j] = sum;
+    }
+  }
+
+  return result;
+}
+
+struct Matrix *matrix_add(struct Matrix *first_matrix,
+                          struct Matrix *second_matrix) {
+  if (first_matrix->rows != second_matrix->rows ||
+      first_matrix->cols != second_matrix->rows) {
+    return NULL;
+  }
+
+  struct Matrix *result = matrix_init(first_matrix->rows, first_matrix->cols);
+
+  for (size_t i = 0; i < first_matrix->cols; i++) {
+    for (size_t j = 0; j < first_matrix->rows; j++) {
+      result->data[i][j] = first_matrix->data[i][j] + second_matrix->data[i][j];
+    }
+  }
+
+  return result;
+}
+
+struct Matrix *matrix_subtract(struct Matrix *first_matrix,
+                               struct Matrix *second_matrix) {
+  if (first_matrix->rows != second_matrix->rows ||
+      first_matrix->cols != second_matrix->rows) {
+    return NULL;
+  }
+
+  struct Matrix *result = matrix_init(first_matrix->rows, first_matrix->cols);
+
+  for (size_t i = 0; i < first_matrix->cols; i++) {
+    for (size_t j = 0; j < first_matrix->rows; j++) {
+      result->data[i][j] = first_matrix->data[i][j] - second_matrix->data[i][j];
     }
   }
 
@@ -241,4 +279,43 @@ struct Matrix *matrix_read_from_file(char *path, char *delimiter) {
   fclose(file);
 
   return matrix;
+}
+
+double matrix_laplace_determinant(struct Matrix *matrix) {
+  if (matrix->rows == 3 && matrix->cols == 3) {
+    double result;
+    matrix_determinant_sarrus3x3(matrix, &result);
+    return result;
+  }
+
+  double result;
+
+  srand(time(NULL));
+  unsigned int rand_row = rand() % (matrix->rows);
+
+  double **arr = matrix->data;
+
+  for (size_t i = 0; i < matrix->cols; i++) {
+    struct Matrix *sub_matrix = matrix_create_minor(matrix, rand_row, i);
+
+    result += arr[rand_row][i] * pow(-1, rand_row + i) *
+              matrix_laplace_determinant(sub_matrix);
+    matrix_free(sub_matrix);
+  }
+
+  return result;
+}
+
+struct Matrix *matrix_create_identity(const size_t size) {
+  struct Matrix *identity_matrix = matrix_init(size, size);
+
+  for (size_t i = 0; i < identity_matrix->rows; i++) {
+    for (size_t j = 0; j < identity_matrix->cols; j++) {
+      if (i == j) {
+        identity_matrix->data[i][j] = 1;
+      }
+    }
+  }
+
+  return identity_matrix;
 }
