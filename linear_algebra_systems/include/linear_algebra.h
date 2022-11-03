@@ -9,4 +9,10 @@ struct Matrix *inverse_matrix_method(struct Matrix *matrix,
 struct Matrix *cramer_method(struct Matrix *matrix,
                              struct Matrix *constant_terms);
 
+struct Matrix *gauss_elimination_method(struct Matrix *matrix,
+                                        struct Matrix *constant_terms);
+
+struct Matrix **matrix_get_upper_triangular(struct Matrix *matrix,
+                                            struct Matrix *constant_terms);
+
 #endif
