@@ -63,8 +63,30 @@ struct Matrix *cramer_method(struct Matrix *matrix,
 
 struct Matrix *gauss_elimination_method(struct Matrix *matrix,
                                         struct Matrix *constant_terms) {
-  printf("fasdf");
-  printf("fasdf");
+  struct Matrix **upper_triangular_result =
+      matrix_get_upper_triangular(matrix, constant_terms);
+
+  struct Matrix *result =
+      matrix_init(constant_terms->rows, constant_terms->cols);
+
+  size_t n = constant_terms->rows;
+
+  result->data[n - 1][0] = upper_triangular_result[0]->data[n - 1][n] /
+                           upper_triangular_result[0]->data[n - 1][n - 1];
+
+  double s = 0;
+  for (size_t i = n - 2; i >= 0; i--) {
+    s = 0;
+    for (size_t j = i + 1; j < n; j++) {
+      // s +=
+    }
+  }
+
+  matrix_free(upper_triangular_result[0]);
+  matrix_free(upper_triangular_result[1]);
+  free(upper_triangular_result);
+
+  return result;
 }
 
 struct Matrix *matrix_clone(struct Matrix *matrix) {
