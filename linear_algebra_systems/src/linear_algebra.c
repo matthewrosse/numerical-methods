@@ -66,20 +66,24 @@ struct Matrix *gauss_elimination_method(struct Matrix *matrix,
   struct Matrix **upper_triangular_result =
       matrix_get_upper_triangular(matrix, constant_terms);
 
+  struct Matrix *upper_triangular_matrix = upper_triangular_result[0];
+  struct Matrix *upper_triangular_constant_terms = upper_triangular_result[1];
+
   struct Matrix *result =
       matrix_init(constant_terms->rows, constant_terms->cols);
 
-  size_t n = constant_terms->rows;
+  int n = (int)constant_terms->rows;
 
-  result->data[n - 1][0] = upper_triangular_result[0]->data[n - 1][n] /
-                           upper_triangular_result[0]->data[n - 1][n - 1];
+  for (int i = n - 1; i >= 0; i--) {
+    result->data[i][0] = upper_triangular_constant_terms->data[i][0];
 
-  double s = 0;
-  for (size_t i = n - 2; i >= 0; i--) {
-    s = 0;
-    for (size_t j = i + 1; j < n; j++) {
-      // s +=
+    for (int j = i + 1; j < n; j++) {
+      result->data[i][0] -=
+          upper_triangular_matrix->data[i][j] * result->data[j][0];
     }
+
+    result->data[i][0] =
+        result->data[i][0] / upper_triangular_matrix->data[i][i];
   }
 
   matrix_free(upper_triangular_result[0]);
@@ -118,7 +122,6 @@ struct Matrix **matrix_get_upper_triangular(struct Matrix *matrix,
     for (size_t j = 0; j < n; j++) {
       if (j > i) {
         multiplier = cloned_matrix->data[j][i] / cloned_matrix->data[i][i];
-        printf("Multiplier: %lf\n", multiplier);
 
         for (size_t k = i; k < n + 1; k++) {
           if (k != n) {
@@ -138,4 +141,10 @@ struct Matrix **matrix_get_upper_triangular(struct Matrix *matrix,
   result_array[1] = cloned_constant_terms;
 
   return result_array;
+}
+
+void linear_equation_print_result(struct Matrix *matrix) {
+  for (size_t i = 0; i < matrix->rows; i++) {
+    printf("x%ld = %.2lf\n", i + 1, matrix->data[i][0]);
+  }
 }

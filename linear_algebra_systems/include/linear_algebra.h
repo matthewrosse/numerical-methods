@@ -15,4 +15,6 @@ struct Matrix *gauss_elimination_method(struct Matrix *matrix,
 struct Matrix **matrix_get_upper_triangular(struct Matrix *matrix,
                                             struct Matrix *constant_terms);
 
+void linear_equation_print_result(struct Matrix *matrix);
+
 #endif
